@@ -1,3 +1,5 @@
+"use client";
+
 const products = [
   {
     name: "Rulo Kılçık Makinesi",
@@ -31,7 +33,9 @@ export default function Products() {
             <div
               key={index}
               onClick={product.whatsapp ? handleWhatsApp : undefined}
-              className={`bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition duration-300 border-t-4 border-orange-500 ${product.whatsapp ? 'cursor-pointer hover:scale-105' : ''}`}
+              className={`bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition duration-300 border-t-4 border-orange-500 ${
+                product.whatsapp ? 'cursor-pointer hover:scale-105' : ''
+              }`}
             >
               <h3 className="text-xl font-bold text-slate-900 mb-3">{product.name}</h3>
               <p className="text-slate-600 mb-4">{product.description}</p>
