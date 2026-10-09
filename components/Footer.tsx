@@ -96,14 +96,14 @@ export default function Footer() {
             © {currentYear} Balcıoğlu Makina. Tüm hakları saklıdır.
           </p>
           <p className="text-slate-500 text-xs mt-2">
-            Web designed by{" "}
+            Powered by{" "}
             <a
-              href="https://instagram.com/roottechx.dev"
+              href="https://instagram.com/mucahhd.inc"
               target="_blank"
               rel="noopener noreferrer"
               className="text-orange-500 hover:text-orange-400 font-semibold underline decoration-2 underline-offset-2 transition"
             >
-              roottechx
+              mucahidbalci
             </a>
           </p>
         </div>
