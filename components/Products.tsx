@@ -10,6 +10,8 @@ interface Product {
   price: string | null;
   features: string[];
   imageUrl: string | null;
+  images: string[];
+  isActive: boolean;
 }
 
 export default function Products() {
