@@ -98,7 +98,7 @@ export default function Footer() {
           <p className="text-slate-500 text-xs mt-2">
             Powered by{" "}
             <a
-              href="https://instagram.com/mucahhd.inc"
+              href="https://instagram.com/mucahidbalci"
               target="_blank"
               rel="noopener noreferrer"
               className="text-orange-500 hover:text-orange-400 font-semibold underline decoration-2 underline-offset-2 transition"

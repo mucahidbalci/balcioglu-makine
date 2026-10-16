@@ -6,9 +6,11 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: 'class', // <-- BU SATIR ŞART! YOKSA KARANLIK MOD ÇALIŞMAZ
   theme: {
     extend: {},
   },
   plugins: [],
 };
+
 export default config;
