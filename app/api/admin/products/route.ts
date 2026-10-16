@@ -60,7 +60,9 @@ export async function POST(request: NextRequest) {
     const featuresArray = features
       ? features.split(',').map(f => f.trim()).filter(f => f)
       : [];
-
+    if (!finalImageUrl && uploadedImages.length > 0) {
+      finalImageUrl = uploadedImages[0];
+    }
     const newProduct = await prisma.product.create({
       data: {
         name,

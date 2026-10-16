@@ -65,10 +65,10 @@ export default function Products() {
                 className="bg-white p-8 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 border-t-4 border-orange-500 cursor-pointer hover:scale-105 group flex flex-col h-full"
               >
                 {/* Ürün Görseli */}
-                {product.imageUrl ? (
+                {(product.imageUrl || product.images?.[0]) ? (
                   <div className="mb-6 h-48 rounded-lg overflow-hidden bg-slate-100">
                     <img 
-                      src={product.imageUrl} 
+                      src={product.imageUrl || product.images?.[0]} 
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
