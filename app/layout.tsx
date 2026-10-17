@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import "./globals.css";
 import Navbar from "@/components/Navbar";
+import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.balcioglumakina.com"),
@@ -56,3 +56,4 @@ export default function RootLayout({
       </body>
     </html>
   );
+}
