@@ -96,33 +96,51 @@ export default function AdminDashboard() {
     setImageMode("url");
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+     const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const form = new FormData();
-    form.append("name", formData.name);
-    form.append("description", formData.description);
-    form.append("price", formData.price);
-    form.append("features", formData.features);
+    const filesToUpload: File[] = [];
+    if (imageMode === "file" && mainImageFile) filesToUpload.push(mainImageFile);
+    filesToUpload.push(...extraImageFiles);
 
-    if (imageMode === "url") {
-      form.append("imageUrl", formData.imageUrl);
-    } else if (mainImageFile) {
-      form.append("imageFile", mainImageFile);
+    // Her resmi TEK TEK backend'e gönder (limit aşımı yok)
+    const uploadedUrls: string[] = [];
+    for (const file of filesToUpload) {
+      try {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("/api/admin/upload-image", {
+          method: "POST",
+          body: fd,
+        });
+        if (res.ok) {
+          const { url } = await res.json();
+          uploadedUrls.push(url);
+        }
+      } catch (err) {
+        console.error("Resim yüklenemedi:", file.name, err);
+      }
     }
 
-    if (editingProduct) {
-      form.append("id", editingProduct.id);
-    }
+    const finalImageUrl =
+      imageMode === "url" ? formData.imageUrl : uploadedUrls[0] || "";
+    const extraImages = imageMode === "url" ? uploadedUrls : uploadedUrls.slice(1);
 
-    for (let i = 0; i < extraImageFiles.length; i++) {
-      form.append("multipleImages", extraImageFiles[i]);
-    }
+    const payload = {
+      id: editingProduct?.id,
+      name: formData.name,
+      description: formData.description,
+      price: formData.price,
+      features: formData.features,
+      imageUrl: finalImageUrl,
+      images: extraImages,
+    };
 
     try {
       const res = await fetch("/api/admin/products", {
         method: editingProduct ? "PUT" : "POST",
-        body: form,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {

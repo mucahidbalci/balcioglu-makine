@@ -59,7 +59,7 @@ export default function AdminLogin() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="balcioglumakina"
+              placeholder="kullaniciadi"
               required
             />
           </div>

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { put } from '@vercel/blob';
 
-// ÜRÜNLERİ LİSTELE
 export async function GET() {
   try {
     const products = await prisma.product.findMany({
@@ -14,64 +12,25 @@ export async function GET() {
   }
 }
 
-// YENİ ÜRÜN EKLE
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const name = formData.get('name') as string;
-    const description = formData.get('description') as string;
-    const price = formData.get('price') as string;
-    const features = formData.get('features') as string;
-    const imageUrlInput = formData.get('imageUrl') as string;
-    const imageFile = formData.get('imageFile') as File;
-    const multipleImages = formData.getAll('multipleImages') as File[];
+    const body = await request.json();
+    const { name, description, price, features, imageUrl, images } = body;
 
-    let finalImageUrl = imageUrlInput;
-    const uploadedImages: string[] = [];
+    const featuresArray = Array.isArray(features)
+      ? features
+      : features
+        ? String(features).split(',').map((f: string) => f.trim()).filter(Boolean)
+        : [];
 
-    // Ana görsel yükle (varsa)
-    if (imageFile && imageFile.size > 0) {
-      try {
-        const blob = await put(`products/${Date.now()}-${imageFile.name}`, imageFile, {
-          access: 'public',
-        });
-        finalImageUrl = blob.url;
-        uploadedImages.push(blob.url);
-      } catch (uploadError) {
-        console.error('Ana görsel yükleme hatası:', uploadError);
-      }
-    }
-
-    // Çoklu görseller yükle (varsa)
-    for (let i = 0; i < multipleImages.length; i++) {
-      const file = multipleImages[i];
-      if (file && file.size > 0) {
-        try {
-          const blob = await put(`products/${Date.now()}-${i}-${file.name}`, file, {
-            access: 'public',
-          });
-          uploadedImages.push(blob.url);
-        } catch (error) {
-          console.error('Görsel yükleme hatası:', error);
-        }
-      }
-    }
-
-    const featuresArray = features
-      ? features.split(',').map(f => f.trim()).filter(f => f)
-      : [];
-    if (!finalImageUrl && uploadedImages.length > 0) {
-      finalImageUrl = uploadedImages[0];
-     uploadedImages.shift();
-    }
     const newProduct = await prisma.product.create({
       data: {
         name,
         description,
-        price,
+        price: price || null,
         features: featuresArray,
-        imageUrl: finalImageUrl || null,
-        images: uploadedImages,
+        imageUrl: imageUrl || null,
+        images: Array.isArray(images) ? images : [],
       },
     });
 
@@ -82,71 +41,28 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// ÜRÜN GÜNCELLE (PUT)
 export async function PUT(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const id = formData.get('id') as string;
-    const name = formData.get('name') as string;
-    const description = formData.get('description') as string;
-    const price = formData.get('price') as string;
-    const features = formData.get('features') as string;
-    const imageFile = formData.get('imageFile') as File;
-    const multipleImages = formData.getAll('multipleImages') as File[];
+    const body = await request.json();
+    const { id, name, description, price, features, imageUrl, images } = body;
 
-    // Mevcut ürünü getir
-    const existingProduct = await prisma.product.findUnique({
-      where: { id },
-    });
+    if (!id) return NextResponse.json({ error: 'ID gerekli' }, { status: 400 });
 
-    if (!existingProduct) {
-      return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
-    }
-
-    let finalImageUrl = existingProduct.imageUrl;
-    const uploadedImages: string[] = [...existingProduct.images];
-
-    // Yeni ana görsel yüklendiyse
-    if (imageFile && imageFile.size > 0) {
-      try {
-        const blob = await put(`products/${Date.now()}-${imageFile.name}`, imageFile, {
-          access: 'public',
-        });
-        finalImageUrl = blob.url;
-        uploadedImages.push(blob.url);
-      } catch (error) {
-        console.error('Görsel yükleme hatası:', error);
-      }
-    }
-
-    // Yeni çoklu görseller
-    for (let i = 0; i < multipleImages.length; i++) {
-      const file = multipleImages[i];
-      if (file && file.size > 0) {
-        try {
-          const blob = await put(`products/${Date.now()}-${i}-${file.name}`, file, {
-            access: 'public',
-          });
-          uploadedImages.push(blob.url);
-        } catch (error) {
-          console.error('Görsel yükleme hatası:', error);
-        }
-      }
-    }
-
-    const featuresArray = features
-      ? features.split(',').map(f => f.trim()).filter(f => f)
-      : [];
+    const featuresArray = Array.isArray(features)
+      ? features
+      : features
+        ? String(features).split(',').map((f: string) => f.trim()).filter(Boolean)
+        : [];
 
     const updatedProduct = await prisma.product.update({
       where: { id },
       data: {
         name,
         description,
-        price,
+        price: price || null,
         features: featuresArray,
-        imageUrl: finalImageUrl,
-        images: uploadedImages,
+        imageUrl: imageUrl || null,
+        images: Array.isArray(images) ? images : [],
       },
     });
 
@@ -157,20 +73,13 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// ÜRÜN SİL
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    if (!id) return NextResponse.json({ error: 'ID gerekli' }, { status: 400 });
 
-    if (!id) {
-      return NextResponse.json({ error: 'ID gerekli' }, { status: 400 });
-    }
-
-    await prisma.product.delete({
-      where: { id },
-    });
-
+    await prisma.product.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Ürün silinemedi' }, { status: 500 });
