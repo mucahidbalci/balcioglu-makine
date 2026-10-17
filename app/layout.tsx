@@ -51,7 +51,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tr">
-      <body className="flex flex-col min-h-screen">
+      <body className="flex flex-col min-h-screen bg-white">
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />

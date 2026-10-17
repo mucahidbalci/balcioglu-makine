@@ -2,9 +2,9 @@ import Link from "next/link";
 
 const stats = [
   { value: "2006", label: "Kuruluş Yılı" },
-  { value: "15+", label: "Yıl Sektör Tecrübesi" },
-  { value: "500+", label: "Teslim Edilen Makine" },
-  { value: "10+", label: "İhracat Ülkesi" },
+  { value: "20+", label: "Yıl Sektör Tecrübesi" },
+  { value: "1.000+", label: "Satılan Makine" },
+  { value: "10.000+", label: "Tamir Edilen Makine" },
 ];
 
 const values = [
@@ -41,12 +41,11 @@ const timeline = [
 export default function HakkimizdaPage() {
   return (
     <div className="bg-white">
-      {/* HERO */}
       <section className="bg-slate-900 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-orange-500 font-semibold text-sm uppercase tracking-widest mb-3">Hakkımızda</p>
           <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-5">
-            Çeyrek Asırlık Tecrübe,<br />Milimetrik Hassasiyet
+            20 Yıllık Tecrübe,<br />Milimetrik Hassasiyet
           </h1>
           <p className="text-slate-300 text-lg leading-relaxed max-w-2xl mx-auto">
             Balcıoğlu Makina olarak 2006'dan bu yana plastik kılçık üretimi, kılçık makinesi imalatı ve sabitleme sistemleri alanında imalat, ithalat, ihracat ve pazarlama hizmeti sunuyoruz.
@@ -54,7 +53,6 @@ export default function HakkimizdaPage() {
         </div>
       </section>
 
-      {/* İSTATİSTİKLER */}
       <section className="border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((s) => (
@@ -66,7 +64,6 @@ export default function HakkimizdaPage() {
         </div>
       </section>
 
-      {/* HİKÂYE */}
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
           <div>
@@ -78,7 +75,7 @@ export default function HakkimizdaPage() {
               Küçük bir atölyede başlayan yolculuğumuz, bugün kendi makinesini üreten, ihracat yapan ve yüzlerce firmaya hizmet veren bir üretim markasına dönüştü. Bu dönüşümün arkasında tek bir ilke var: kaliteden ödün vermemek.
             </p>
             <ul className="space-y-3">
-              {["15 yılı aşkın sektör tecrübesi", "Kırılan parçaların özel üretimi", "Yüksek kapasiteli, sessiz makine tasarımı", "Hızlı teknik destek ve yedek parça", "%100 müşteri memnuniyeti"].map((item) => (
+              {["20 yılı aşkın sektör tecrübesi", "Kırılan parçaların özel üretimi", "Yüksek kapasiteli, sessiz makine tasarımı", "Hızlı teknik destek ve yedek parça", "%100 müşteri memnuniyeti"].map((item) => (
                 <li key={item} className="flex items-center gap-3 text-slate-700">
                   <span className="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
                     <svg className="w-3 h-3 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
@@ -101,7 +98,6 @@ export default function HakkimizdaPage() {
         </div>
       </section>
 
-      {/* DEĞERLER */}
       <section className="bg-slate-50 py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
@@ -122,7 +118,6 @@ export default function HakkimizdaPage() {
         </div>
       </section>
 
-      {/* ZAMAN ÇİZELGESİ */}
       <section className="py-20 px-4">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
@@ -142,7 +137,6 @@ export default function HakkimizdaPage() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="bg-slate-900 py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Birlikte Çalışalım</h2>

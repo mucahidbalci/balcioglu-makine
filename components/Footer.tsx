@@ -68,12 +68,25 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} Balcıoğlu Makina. Tüm hakları saklıdır.</p>
-          <div className="flex gap-5">
-            <Link href="/kvkk" className="hover:text-orange-500 transition">KVKK Aydınlatma Metni</Link>
-            <Link href="/cerez" className="hover:text-orange-500 transition">Çerez Politikası</Link>
+        <div className="mt-12 pt-6 border-t border-slate-800">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-500">
+            <p>© {new Date().getFullYear()} Balcıoğlu Makina. Tüm hakları saklıdır.</p>
+            <div className="flex gap-5">
+              <Link href="/kvkk" className="hover:text-orange-500 transition">KVKK Aydınlatma Metni</Link>
+              <Link href="/cerez" className="hover:text-orange-500 transition">Çerez Politikası</Link>
+            </div>
           </div>
+          <p className="text-center text-xs text-slate-500 mt-4">
+            Powered by{" "}
+            <a
+              href="https://mucahidbalci.github.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-orange-500 transition font-medium"
+            >
+              mucahidbalci
+            </a>
+          </p>
         </div>
       </div>
     </footer>
