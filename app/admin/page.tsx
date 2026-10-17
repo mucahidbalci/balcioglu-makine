@@ -11,6 +11,69 @@ interface Product {
 
 type TabKey = "products" | "visitors" | "sales" | "security" | "settings";
 
+// ============ SALES TABLE COMPONENT ============
+function SalesTable() {
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/orders")
+      .then(res => res.json())
+      .then(data => {
+        setOrders(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div className="p-12 text-center text-gray-400">Yükleniyor...</div>;
+  if (orders.length === 0) return <div className="p-12 text-center text-gray-400">Henüz teklif veya sipariş talebi yok.</div>;
+
+  const statusColors: Record<string, string> = {
+    PENDING: "bg-amber-900/30 text-amber-400 border-amber-800",
+    CONTACTED: "bg-blue-900/30 text-blue-400 border-blue-800",
+    CLOSED: "bg-gray-800 text-gray-400 border-gray-700",
+  };
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead className="bg-gray-900/50">
+          <tr>
+            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Tarih</th>
+            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Müşteri</th>
+            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Ürün</th>
+            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">İletişim</th>
+            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Durum</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-800">
+          {orders.map((order) => (
+            <tr key={order.id} className="hover:bg-gray-900/30 transition-colors duration-150">
+              <td className="px-6 py-4 text-sm text-gray-400">{new Date(order.createdAt).toLocaleDateString('tr-TR')}</td>
+              <td className="px-6 py-4">
+                <div className="text-sm font-semibold text-white">{order.customerName}</div>
+                <div className="text-xs text-gray-500">{order.message?.substring(0, 30)}{order.message?.length > 30 ? '...' : ''}</div>
+              </td>
+              <td className="px-6 py-4 text-sm text-gray-300">{order.productName}</td>
+              <td className="px-6 py-4 text-sm text-gray-400">
+                <div>{order.customerEmail}</div>
+                <div>{order.customerPhone}</div>
+              </td>
+              <td className="px-6 py-4">
+                <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border ${statusColors[order.status] || statusColors.PENDING}`}>
+                  {order.status === "PENDING" ? "Bekliyor" : order.status === "CONTACTED" ? "İletişime Geçildi" : "Kapandı"}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+// ================================================
+
 function resizeImage(file: File, maxW = 1920, quality = 0.85): Promise<File> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -38,7 +101,6 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<TabKey>("products");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -323,7 +385,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
-                {activeTab === "sales" && (
+        {activeTab === "sales" && (
           <div>
             <h2 className="text-2xl font-bold tracking-tight mb-1">Teklif ve Siparişler</h2>
             <p className="text-sm text-gray-400 mb-8">Müşterilerden gelen teklif talepleri ve siparişler.</p>
