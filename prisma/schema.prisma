@@ -32,6 +32,19 @@ model Product {
 
   @@map("Product")
 }
+model Settings {
+  id            String   @id @default(cuid())
+  siteTitle     String   @default("Balcıoğlu Makina")
+  phone         String   @default("0535 396 97 68")
+  address       String   @default("Barbaros, 163. Sk No:5 Kat:3, 34165 Bağcılar/İstanbul")
+  email         String   @default("balcioglumakina@gmail.com")
+  instagramUrl  String   @default("#")
+  facebookUrl   String   @default("#")
+  heroText      String   @default("2006'dan beri kılçık makinesi ve sabitleme sistemlerinde güvenilir çözüm ortağınız.")
+  updatedAt     DateTime @updatedAt
+  createdAt     DateTime @default(now())
+}
+
 
 model Analytics {
   id          String   @id @default(cuid())
