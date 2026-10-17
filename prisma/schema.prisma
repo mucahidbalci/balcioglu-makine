@@ -77,3 +77,18 @@ model Settings {
   updatedAt         DateTime @updatedAt
   createdAt         DateTime @default(now())
 }
+model Order {
+  id          String   @id @default(cuid())
+  type        String   @default("QUOTE_REQUEST") // QUOTE_REQUEST veya DIRECT_ORDER
+  productName String
+  customerName String
+  customerEmail String
+  customerPhone String
+  message     String?
+  status      String   @default("PENDING") // PENDING, CONTACTED, CLOSED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}

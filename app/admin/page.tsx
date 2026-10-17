@@ -323,11 +323,17 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {activeTab === "sales" && (
-          <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-            <div className="w-16 h-16 rounded-2xl bg-blue-900/20 flex items-center justify-center mb-4"><svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 3v18h18M7 14l4-4 4 4 5-5" /></svg></div>
-            <h2 className="text-xl font-bold mb-2">Satışlar & Siparişler</h2>
-            <p className="text-sm text-gray-400 max-w-md">Ziraat Bankası sanal pos entegrasyonu ve sipariş takip modülü, e-ticaret altyapısı hazırlandığında bu sekmede aktif edilecektir.</p>
+                {activeTab === "sales" && (
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight mb-1">Teklif ve Siparişler</h2>
+            <p className="text-sm text-gray-400 mb-8">Müşterilerden gelen teklif talepleri ve siparişler.</p>
+            
+            <div className="bg-[#161b22] rounded-2xl border border-gray-800 overflow-hidden">
+              <div className="px-6 py-5 border-b border-gray-800 flex justify-between items-center">
+                <h3 className="text-base font-bold tracking-tight">Son Talepler</h3>
+              </div>
+              <SalesTable />
+            </div>
           </div>
         )}
 
