@@ -6,7 +6,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { type, url, productId, deviceType, duration, metadata } = body;
 
-    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const forwardedFor = request.headers.get('x-forwarded-for');
+    const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : 'unknown';
 
     await prisma.analytics.create({
       data: {
@@ -56,7 +57,13 @@ export async function GET(request: NextRequest) {
       take: 100,
     });
 
-    return NextResponse.json(analytics);
+    // Tekil ziyaretçi sayısı (unique IP)
+    const uniqueIPs = new Set(analytics.map(a => a.ip).filter(Boolean));
+
+    return NextResponse.json({
+      records: analytics,
+      uniqueVisitors: uniqueIPs.size,
+    });
   } catch (error) {
     console.error('Analytics okuma hatası:', error);
     return NextResponse.json({ error: 'Analytics okunamadı' }, { status: 500 });

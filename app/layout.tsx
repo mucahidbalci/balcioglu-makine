@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { headers } from "next/headers";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CookieBanner from "@/components/CookieBanner";
@@ -46,19 +47,25 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: ReactNode;
 }) {
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") || "";
+  
+  // Admin panelinde navbar ve footer gösterme
+  const isAdmin = pathname.startsWith("/admin");
+
   return (
     <html lang="tr">
       <body className="flex flex-col min-h-screen bg-white">
-        <Navbar />
+        {!isAdmin && <Navbar />}
         <main className="flex-1">{children}</main>
-        <Footer />
-        <CookieBanner />
-        <Tracking />
+        {!isAdmin && <Footer />}
+        {!isAdmin && <CookieBanner />}
+        {!isAdmin && <Tracking />}
       </body>
     </html>
   );
