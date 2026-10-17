@@ -24,7 +24,7 @@ model Product {
   price       String?
   features    String[] @default([])
   imageUrl    String?
-  images      String[] @default([])  // <-- BU SATIR OLMALI!
+  images      String[] @default([])
   order       Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -32,29 +32,16 @@ model Product {
 
   @@map("Product")
 }
-model Settings {
-  id            String   @id @default(cuid())
-  siteTitle     String   @default("Balcıoğlu Makina")
-  phone         String   @default("0535 396 97 68")
-  address       String   @default("Barbaros, 163. Sk No:5 Kat:3, 34165 Bağcılar/İstanbul")
-  email         String   @default("balcioglumakina@gmail.com")
-  instagramUrl  String   @default("#")
-  facebookUrl   String   @default("#")
-  heroText      String   @default("2006'dan beri kılçık makinesi ve sabitleme sistemlerinde güvenilir çözüm ortağınız.")
-  updatedAt     DateTime @updatedAt
-  createdAt     DateTime @default(now())
-}
-
 
 model Analytics {
   id          String   @id @default(cuid())
-  type        String   // page_view, product_click, image_scroll, session
+  type        String
   url         String?
   productId   String?
-  deviceType  String?  // mobile, tablet, desktop
+  deviceType  String?
   ip          String?
-  duration    Int?     // saniye cinsinden
-  metadata    String?  // JSON string
+  duration    Int?
+  metadata    String?
   createdAt   DateTime @default(now())
 
   @@index([type])
@@ -74,14 +61,19 @@ model Review {
 }
 
 model Settings {
-  id            String   @id @default("main")
-  whatsapp      String   @default("905353969768")
-  phone         String   @default("0535 396 97 68")
-  email         String   @default("balcioglumakina@gmail.com")
-  address       String   @default("Barbaros, 163. Sk No:5 Kat:3, 34165 Bağcılar/İstanbul")
-  contactPerson String   @default("Ekrem BALCI")
-  mapsLink      String   @default("https://www.google.com/maps/place/K%C4%B1l%C3%A7%C4%B1k+Makinesi")
-  heroTitle     String   @default("Kılçık Makinesi ve Sabitleme Sistemlerinde Güvenilir Çözüm Ortağınız")
-  heroSubtitle  String   @default("2006 yılından bu yana imalat, ithalat, ihracat ve pazarlama alanlarında sektörün öncüsü")
-  updatedAt     DateTime @updatedAt
+  id                String   @id @default(cuid())
+  siteTitle         String   @default("Balcıoğlu Makina")
+  phone             String   @default("0535 396 97 68")
+  address           String   @default("Barbaros, 163. Sk No:5 Kat:3, 34165 Bağcılar/İstanbul")
+  email             String   @default("balcioglumakina@gmail.com")
+  instagramUrl      String   @default("#")
+  facebookUrl       String   @default("#")
+  linkedinUrl       String   @default("#")
+  youtubeUrl        String   @default("#")
+  heroText          String   @default("2006'dan beri kılçık makinesi ve sabitleme sistemlerinde güvenilir çözüm ortağınız.")
+  metaDescription   String   @default("Kılçık makinesi ve sabitleme sistemleri")
+  googleAnalyticsId String   @default("")
+  maintenanceMode   Boolean  @default(false)
+  updatedAt         DateTime @updatedAt
+  createdAt         DateTime @default(now())
 }
