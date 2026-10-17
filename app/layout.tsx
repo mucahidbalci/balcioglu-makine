@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import CookieBanner from "@/components/CookieBanner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -55,6 +56,7 @@ export default function RootLayout({
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
+        <CookieBanner />
       </body>
     </html>
   );
