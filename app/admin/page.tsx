@@ -23,8 +23,11 @@ export default function AdminDashboard() {
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [imageMode, setImageMode] = useState<"url" | "file">("url");
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null);
+  const [extraImageFiles, setExtraImageFiles] = useState<File[]>([]);
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -34,9 +37,7 @@ export default function AdminDashboard() {
     features: "",
     imageUrl: "",
   });
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
 
-  // Tema yükleme
   useEffect(() => {
     const saved = localStorage.getItem("admin-theme");
     if (saved === "dark") {
@@ -47,7 +48,6 @@ export default function AdminDashboard() {
     }
   }, []);
 
-  // Tema değiştirme
   const toggleTheme = () => {
     const newMode = !darkMode;
     setDarkMode(newMode);
@@ -59,7 +59,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Ürünleri çek
   const fetchProducts = async () => {
     setLoading(true);
     try {
@@ -77,29 +76,26 @@ export default function AdminDashboard() {
     fetchProducts();
   }, []);
 
-  // Toast
   const showToast = (message: string, type: "success" | "error") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Çıkış
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/admin/login");
     router.refresh();
   };
 
-  // Form sıfırla
   const resetForm = () => {
     setFormData({ name: "", description: "", price: "", features: "", imageUrl: "" });
-    setImageFiles([]);
+    setMainImageFile(null);
+    setExtraImageFiles([]);
     setEditingProduct(null);
     setShowForm(false);
     setImageMode("url");
   };
 
-  // Form gönder
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -111,14 +107,16 @@ export default function AdminDashboard() {
 
     if (imageMode === "url") {
       form.append("imageUrl", formData.imageUrl);
+    } else if (mainImageFile) {
+      form.append("imageFile", mainImageFile);
     }
 
     if (editingProduct) {
       form.append("id", editingProduct.id);
     }
 
-    for (let i = 0; i < imageFiles.length; i++) {
-      form.append("multipleImages", imageFiles[i]);
+    for (let i = 0; i < extraImageFiles.length; i++) {
+      form.append("multipleImages", extraImageFiles[i]);
     }
 
     try {
@@ -139,7 +137,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Düzenle
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     setFormData({
@@ -154,12 +151,10 @@ export default function AdminDashboard() {
     setImageMode("url");
   };
 
-  // Sil
-  const handleDelete = async (id: string) => {
-    if (!confirm("Bu ürünü silmek istediğinize emin misiniz?")) return;
-
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/admin/products?id=${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/products?id=${deleteTarget.id}`, { method: "DELETE" });
       if (res.ok) {
         showToast("Ürün silindi", "success");
         fetchProducts();
@@ -168,10 +163,11 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       showToast("Bağlantı hatası", "error");
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
-  // Filtre
   const filteredProducts = products.filter(
     (p) =>
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -186,7 +182,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-      {/* Toast */}
       {toast && (
         <div
           className={`fixed top-6 right-6 z-50 px-5 py-3 rounded-lg shadow-lg text-white font-medium transition-all ${
@@ -197,19 +192,13 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Üst Bar */}
       <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div>
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Ürün Yönetimi
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-              Balcıoğlu Makina Yönetim Paneli
-            </p>
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Ürün Yönetimi</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Balcıoğlu Makina Yönetim Paneli</p>
           </div>
           <div className="flex items-center gap-3">
-            {/* Tema Toggle */}
             <button
               onClick={toggleTheme}
               className="p-2.5 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
@@ -241,9 +230,7 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      {/* Ana İçerik */}
       <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* İstatistikler */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Toplam Ürün</p>
@@ -259,15 +246,9 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Kontroller */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div className="relative w-full md:w-80">
-            <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
@@ -292,17 +273,13 @@ export default function AdminDashboard() {
           </button>
         </div>
 
-        {/* Form */}
         {showForm && (
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-8 shadow-sm">
             <div className="flex justify-between items-center mb-5">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {editingProduct ? "Ürün Düzenle" : "Yeni Ürün Ekle"}
               </h2>
-              <button
-                onClick={resetForm}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-              >
+              <button onClick={resetForm} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -312,9 +289,7 @@ export default function AdminDashboard() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                    Ürün Adı *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Ürün Adı *</label>
                   <input
                     type="text"
                     value={formData.name}
@@ -324,9 +299,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                    Fiyat
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Fiyat</label>
                   <input
                     type="text"
                     value={formData.price}
@@ -338,9 +311,7 @@ export default function AdminDashboard() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  Açıklama *
-                </label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Açıklama *</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -351,9 +322,7 @@ export default function AdminDashboard() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  Özellikler
-                </label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Özellikler</label>
                 <input
                   type="text"
                   value={formData.features}
@@ -363,13 +332,8 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              {/* ANA GÖRSEL SEÇİMİ - İKİ SEÇENEK */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  Ana Görsel
-                </label>
-                
-                {/* Mod Seçimi */}
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Ana Görsel</label>
                 <div className="flex gap-3 mb-3">
                   <button
                     type="button"
@@ -395,8 +359,7 @@ export default function AdminDashboard() {
                   </button>
                 </div>
 
-                {/* URL Modu */}
-                {imageMode === "url" && (
+                {imageMode === "url" ? (
                   <input
                     type="url"
                     value={formData.imageUrl}
@@ -404,35 +367,27 @@ export default function AdminDashboard() {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="https://ornek.com/resim.jpg"
                   />
-                )}
-
-                {/* Dosya Modu */}
-                {imageMode === "file" && (
+                ) : (
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => setImageFiles(Array.from(e.target.files || []))}
+                    onChange={(e) => setMainImageFile(e.target.files?.[0] || null)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 )}
               </div>
 
-              {/* Ek Görseller */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  Ek Görseller (Çoklu Yükleme)
-                </label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Ek Görseller (Çoklu)</label>
                 <input
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={(e) => setImageFiles(Array.from(e.target.files || []))}
+                  onChange={(e) => setExtraImageFiles(Array.from(e.target.files || []))}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                {imageFiles.length > 0 && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">
-                    {imageFiles.length} dosya seçildi
-                  </p>
+                {extraImageFiles.length > 0 && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">{extraImageFiles.length} dosya seçildi</p>
                 )}
               </div>
 
@@ -455,24 +410,18 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Ürün Detay Modal */}
         {viewingProduct && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
             onClick={() => setViewingProduct(null)}
           >
             <div
-              className="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Ürün Detayları
-                </h2>
-                <button
-                  onClick={() => setViewingProduct(null)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                >
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Ürün Detayları</h2>
+                <button onClick={() => setViewingProduct(null)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -480,26 +429,14 @@ export default function AdminDashboard() {
               </div>
               <div className="p-6">
                 {viewingProduct.imageUrl && (
-                  <img
-                    src={viewingProduct.imageUrl}
-                    alt={viewingProduct.name}
-                    className="w-full h-64 object-cover rounded-lg mb-4"
-                  />
+                  <img src={viewingProduct.imageUrl} alt={viewingProduct.name} className="w-full h-64 object-cover rounded-lg mb-4" />
                 )}
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                  {viewingProduct.name}
-                </h3>
-                {viewingProduct.price && (
-                  <p className="text-blue-600 font-semibold mb-3">{viewingProduct.price}</p>
-                )}
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  {viewingProduct.description}
-                </p>
-                {viewingProduct.features?.length > 0 && (
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{viewingProduct.name}</h3>
+                {viewingProduct.price && <p className="text-blue-600 font-semibold mb-3">{viewingProduct.price}</p>}
+                <p className="text-gray-600 dark:text-gray-300 mb-4">{viewingProduct.description}</p>
+                {(viewingProduct.features?.length ?? 0) > 0 && (
                   <div className="mb-4">
-                    <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Özellikler:
-                    </h4>
+                    <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Özellikler:</h4>
                     <ul className="list-disc list-inside text-gray-600 dark:text-gray-400 space-y-1">
                       {viewingProduct.features.map((f, i) => (
                         <li key={i}>{f}</li>
@@ -526,12 +463,49 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Ürün Tablosu */}
+        {deleteTarget && (
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+            onClick={() => setDeleteTarget(null)}
+          >
+            <div
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Ürünü Sil</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    <span className="font-medium">{deleteTarget.name}</span> ürünü kalıcı olarak silinecek. Bu işlem geri alınamaz.
+                  </p>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={() => setDeleteTarget(null)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition"
+                >
+                  Vazgeç
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition"
+                >
+                  Evet, Sil
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Ürünler ({filteredProducts.length})
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Ürünler ({filteredProducts.length})</h2>
           </div>
           {loading ? (
             <div className="p-8 text-center text-gray-500 dark:text-gray-400">Yükleniyor...</div>
@@ -544,34 +518,19 @@ export default function AdminDashboard() {
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Ürün
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Fiyat
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Özellikler
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      İşlemler
-                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ürün</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fiyat</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Özellikler</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">İşlemler</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {filteredProducts.map((product) => (
-                    <tr
-                      key={product.id}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-                    >
+                    <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {product.imageUrl ? (
-                            <img
-                              src={product.imageUrl}
-                              alt={product.name}
-                              className="w-12 h-12 rounded-lg object-cover"
-                            />
+                            <img src={product.imageUrl} alt={product.name} className="w-12 h-12 rounded-lg object-cover" />
                           ) : (
                             <div className="w-12 h-12 rounded-lg bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
                               <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -580,32 +539,21 @@ export default function AdminDashboard() {
                             </div>
                           )}
                           <div>
-                            <div className="font-medium text-gray-900 dark:text-white">
-                              {product.name}
-                            </div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
-                              {product.description}
-                            </div>
+                            <div className="font-medium text-gray-900 dark:text-white">{product.name}</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">{product.description}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                        {product.price || "-"}
-                      </td>
+                      <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{product.price || "-"}</td>
                       <td className="px-6 py-4">
                         <div className="flex flex-wrap gap-1">
                           {product.features?.slice(0, 2).map((f, i) => (
-                            <span
-                              key={i}
-                              className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded"
-                            >
+                            <span key={i} className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
                               {f}
                             </span>
                           ))}
-                          {product.features?.length > 2 && (
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              +{product.features.length - 2}
-                            </span>
+                          {(product.features?.length ?? 0) > 2 && (
+                            <span className="text-xs text-gray-500 dark:text-gray-400">+{product.features.length - 2}</span>
                           )}
                         </div>
                       </td>
@@ -624,7 +572,7 @@ export default function AdminDashboard() {
                             Düzenle
                           </button>
                           <button
-                            onClick={() => handleDelete(product.id)}
+                            onClick={() => setDeleteTarget(product)}
                             className="text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition"
                           >
                             Sil

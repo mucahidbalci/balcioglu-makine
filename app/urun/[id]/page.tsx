@@ -43,11 +43,10 @@ export default function ProductDetail() {
     window.open(`https://wa.me/905353969768?text=${message}`, "_blank");
   };
 
-  // Tüm görseller (ana görsel + çoklu görseller)
-  const allImages = [
-    product?.imageUrl,
-    ...(product?.images || []),
-  ].filter(Boolean) as string[];
+
+  const allImages = Array.from(
+    new Set([product?.imageUrl, ...(product?.images || [])].filter(Boolean) as string[])
+  );
 
   if (loading) {
     return (

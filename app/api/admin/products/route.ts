@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
       : [];
     if (!finalImageUrl && uploadedImages.length > 0) {
       finalImageUrl = uploadedImages[0];
+     uploadedImages.shift();
     }
     const newProduct = await prisma.product.create({
       data: {
