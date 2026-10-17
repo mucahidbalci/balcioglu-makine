@@ -33,6 +33,22 @@ model Product {
   @@map("Product")
 }
 
+model Analytics {
+  id          String   @id @default(cuid())
+  type        String   // page_view, product_click, image_scroll, session
+  url         String?
+  productId   String?
+  deviceType  String?  // mobile, tablet, desktop
+  ip          String?
+  duration    Int?     // saniye cinsinden
+  metadata    String?  // JSON string
+  createdAt   DateTime @default(now())
+
+  @@index([type])
+  @@index([createdAt])
+  @@index([productId])
+}
+
 model Review {
   id        String   @id @default(cuid())
   name      String

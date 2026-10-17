@@ -67,6 +67,18 @@ export default function AdminDashboard() {
   const [imageMode, setImageMode] = useState<"url" | "file">("url");
   const [mainImageFile, setMainImageFile] = useState<File | null>(null);
   const [extraImageFiles, setExtraImageFiles] = useState<File[]>([]);
+  
+  // Analytics state'leri
+  const [visitorStats, setVisitorStats] = useState({
+    today: 0,
+    week: 0,
+    month: 0,
+    desktop: 0,
+    mobile: 0,
+    tablet: 0,
+  });
+  const [recentVisits, setRecentVisits] = useState<any[]>([]);
+
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -85,6 +97,44 @@ export default function AdminDashboard() {
     } else {
       document.documentElement.classList.remove("dark");
     }
+  }, []);
+
+  // Analytics verilerini çek
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const [dayRes, weekRes, monthRes] = await Promise.all([
+          fetch("/api/track?period=day"),
+          fetch("/api/track?period=week"),
+          fetch("/api/track?period=month"),
+        ]);
+
+        const dayData = await dayRes.json();
+        const weekData = await weekRes.json();
+        const monthData = await monthRes.json();
+
+        const desktop = monthData.filter((v: any) => v.deviceType === "desktop").length;
+        const mobile = monthData.filter((v: any) => v.deviceType === "mobile").length;
+        const tablet = monthData.filter((v: any) => v.deviceType === "tablet").length;
+
+        setVisitorStats({
+          today: dayData.length,
+          week: weekData.length,
+          month: monthData.length,
+          desktop,
+          mobile,
+          tablet,
+        });
+
+        setRecentVisits(monthData.slice(0, 10));
+      } catch (error) {
+        console.error("Analytics yüklenemedi:", error);
+      }
+    };
+
+    fetchAnalytics();
+    const interval = setInterval(fetchAnalytics, 30000); // 30 saniyede bir güncelle
+    return () => clearInterval(interval);
   }, []);
 
   const toggleTheme = () => {
@@ -628,22 +678,50 @@ export default function AdminDashboard() {
         {activeTab === "visitors" && (
           <div>
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-1">Ziyaretçi Analitiği</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">Sayfa görüntülenme, ürün tıklama, resim etkileşimi ve cihaz kırılımları.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">Sayfa görüntülenme, cihaz kırılımı ve oturum süreleri.</p>
+            
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              {[
-                { label: "Bugün", value: "—" },
-                { label: "Bu Hafta", value: "—" },
-                { label: "Bu Ay", value: "—" },
-                { label: "Şu An Aktif", value: "—" },
-              ].map((c) => (
-                <div key={c.label} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{c.label}</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{c.value}</p>
-                </div>
-              ))}
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Bugün</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{visitorStats.today}</p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Bu Hafta</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{visitorStats.week}</p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Bu Ay</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{visitorStats.month}</p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Masaüstü / Mobil / Tablet</p>
+                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                  {visitorStats.desktop} / {visitorStats.mobile} / {visitorStats.tablet}
+                </p>
+              </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-10 text-center">
-              <p className="text-gray-500 dark:text-gray-400">Analitik modülü sıradaki adımda kuruluyor. Veriler burada canlı görünecek.</p>
+
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Son Ziyaretler</h3>
+              {recentVisits.length === 0 ? (
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">Henüz ziyaret kaydı yok. Siteyi ziyaret edin, veriler burada görünecek.</p>
+              ) : (
+                <div className="space-y-3">
+                  {recentVisits.map((visit, i) => (
+                    <div key={i} className="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">{visit.url || "Ana Sayfa"}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {visit.deviceType} • {new Date(visit.createdAt).toLocaleString('tr-TR')}
+                        </p>
+                      </div>
+                      {visit.duration && (
+                        <span className="text-sm text-gray-600 dark:text-gray-300">{visit.duration}s</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
