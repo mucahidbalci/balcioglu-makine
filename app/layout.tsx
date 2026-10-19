@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import ClientLayout from "./ClientLayout";
+import { LanguageProvider } from "@/lib/LanguageContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
     template: "%s | Balcıoğlu Makina",
   },
   description: "2006'dan beri kılçık makinesi, rulo kılçık, çorap kılçık ve sabitleme sistemleri imalatı. İstanbul Bağcılar'da yüksek kalite standartlarında üretim, ithalat ve ihracat.",
-  keywords: ["kılçık makinesi", "rulo kılçık makinesi", "çorap kılçık makinesi", "kılçıklama makinesi", "sabitleme sistemleri", "tekstil makinaları", "Balcıoğlu Makina"],
+  keywords: ["kılçık makinesi", "rulo kılçık makinesi", "çorap kılçık makinesi", "sabitleme sistemleri", "Balcıoğlu Makina"],
   authors: [{ name: "Balcıoğlu Makina" }],
   alternates: { canonical: "/" },
   openGraph: {
@@ -31,9 +32,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="tr">
+    <html lang="tr" dir="ltr" suppressHydrationWarning>
       <body className="flex flex-col min-h-screen bg-white">
-        <ClientLayout>{children}</ClientLayout>
+        <LanguageProvider>
+          <ClientLayout>{children}</ClientLayout>
+        </LanguageProvider>
       </body>
     </html>
   );
