@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 export async function GET() {
   try {
     const products = await prisma.product.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
     });
     return NextResponse.json(products);
   } catch (error) {
@@ -23,6 +23,8 @@ export async function POST(request: NextRequest) {
         ? String(features).split(',').map((f: string) => f.trim()).filter(Boolean)
         : [];
 
+    const count = await prisma.product.count();
+
     const newProduct = await prisma.product.create({
       data: {
         name,
@@ -31,6 +33,7 @@ export async function POST(request: NextRequest) {
         features: featuresArray,
         imageUrl: imageUrl || null,
         images: Array.isArray(images) ? images : [],
+        order: count,
       },
     });
 

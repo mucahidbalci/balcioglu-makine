@@ -74,6 +74,7 @@ model Settings {
   metaDescription   String   @default("Kılçık makinesi ve sabitleme sistemleri")
   googleAnalyticsId String   @default("")
   maintenanceMode   Boolean  @default(false)
+  excludedIps       String   @default("212.129.37.129")
   updatedAt         DateTime @updatedAt
   createdAt         DateTime @default(now())
 }

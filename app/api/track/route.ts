@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+async function getExcludedIps(): Promise<string[]> {
+  try {
+    const settings = await prisma.settings.findFirst();
+    return (settings?.excludedIps || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -8,6 +20,11 @@ export async function POST(request: NextRequest) {
 
     const forwardedFor = request.headers.get('x-forwarded-for');
     const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : 'unknown';
+
+    const excluded = await getExcludedIps();
+    if (excluded.includes(ip)) {
+      return NextResponse.json({ success: true, skipped: true });
+    }
 
     await prisma.analytics.create({
       data: {
@@ -31,38 +48,56 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type');
     const period = searchParams.get('period') || 'day';
 
     let startDate = new Date();
-    if (period === 'day') {
-      startDate.setDate(startDate.getDate() - 1);
-    } else if (period === 'week') {
-      startDate.setDate(startDate.getDate() - 7);
-    } else if (period === 'month') {
-      startDate.setMonth(startDate.getMonth() - 1);
-    }
+    if (period === 'day') startDate.setDate(startDate.getDate() - 1);
+    else if (period === 'week') startDate.setDate(startDate.getDate() - 7);
+    else if (period === 'month') startDate.setMonth(startDate.getMonth() - 1);
 
-    const where: any = {
-      createdAt: { gte: startDate },
-    };
-
-    if (type) {
-      where.type = type;
-    }
-
-    const analytics = await prisma.analytics.findMany({
-      where,
+    const rows = await prisma.analytics.findMany({
+      where: { createdAt: { gte: startDate } },
       orderBy: { createdAt: 'desc' },
-      take: 100,
+      select: { ip: true, deviceType: true, createdAt: true, url: true, duration: true, type: true },
     });
 
-    // Tekil ziyaretçi sayısı (unique IP)
-    const uniqueIPs = new Set(analytics.map(a => a.ip).filter(Boolean));
+    const excluded = await getExcludedIps();
+    const filtered = rows.filter((r) => !r.ip || !excluded.includes(r.ip));
+
+    const uniqueIps = new Set(filtered.map((r) => r.ip).filter(Boolean));
+
+    const deviceSets: Record<string, Set<string>> = {
+      desktop: new Set(),
+      mobile: new Set(),
+      tablet: new Set(),
+    };
+    for (const r of filtered) {
+      const d = deviceSets[r.deviceType || 'desktop'] ? r.deviceType || 'desktop' : 'desktop';
+      deviceSets[d].add(r.ip || 'unknown');
+    }
+
+    const daily: { label: string; count: number }[] = [];
+    const now = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const key = d.toDateString();
+      daily.push({
+        label: d.toLocaleDateString('tr-TR', { weekday: 'short' }),
+        count: filtered.filter((r) => new Date(r.createdAt).toDateString() === key).length,
+      });
+    }
 
     return NextResponse.json({
-      records: analytics,
-      uniqueVisitors: uniqueIPs.size,
+      records: filtered.slice(0, 15),
+      uniqueVisitors: uniqueIps.size,
+      devices: {
+        desktop: deviceSets.desktop.size,
+        mobile: deviceSets.mobile.size,
+        tablet: deviceSets.tablet.size,
+      },
+      daily,
+      totalEvents: filtered.length,
     });
   } catch (error) {
     console.error('Analytics okuma hatası:', error);
