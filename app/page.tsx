@@ -47,36 +47,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* MANIFESTO - SİTE SAHİBİNİN ÖZEL CÜMLESİ */}
-      <section className="relative bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 py-24 px-4 overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent"></div>
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="inline-block px-4 py-1.5 rounded-full bg-amber-900/10 border border-amber-600/30 text-amber-800 text-xs font-bold uppercase tracking-widest mb-6">
-            {t.manifesto.badge}
-          </div>
-          <div className="space-y-3">
-            <p className="text-2xl md:text-4xl font-bold text-slate-900 leading-tight">
-              {t.manifesto.text1}
-            </p>
-            <p className="text-3xl md:text-5xl font-bold leading-tight">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-red-600">
-                {t.manifesto.text2}
-              </span>
-            </p>
-            <p className="text-3xl md:text-5xl font-bold leading-tight">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-amber-600">
-                {t.manifesto.text3}
-              </span>
-            </p>
-          </div>
-          <div className="mt-8 pt-8 border-t border-amber-900/10">
-            <p className="text-lg md:text-xl text-slate-700 font-medium">
-              {t.manifesto.footer}
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* STATS */}
       <section className="py-16 px-4 bg-white border-b border-slate-200">
         <div className="max-w-6xl mx-auto">

@@ -11,13 +11,6 @@ export const translations = {
       cta1: "Teklif Alın",
       cta2: "Ürünlerimizi İnceleyin"
     },
-    manifesto: {
-      badge: "MANİFESTO",
-      text1: "Masa başı al-satçı makine tüccarı değil,",
-      text2: "işin mutfağında aşçı,",
-      text3: "ameliyat masasında cerrahız.",
-      footer: "2006 yılından bu yana sabitleme sistemlerinde kalitenin ve güvenin adresi."
-    },
     stats: [
       { value: "18+", label: "Yıl Tecrübe" },
       { value: "1000+", label: "Tamir Edilen Makine" },
@@ -60,13 +53,6 @@ export const translations = {
       desc: "18 years of experience in manufacturing, import, export and marketing. Production with high quality standards and reliable partnership.",
       cta1: "Get a Quote",
       cta2: "View Our Products"
-    },
-    manifesto: {
-      badge: "MANIFESTO",
-      text1: "Not a desk-bound machinery trader,",
-      text2: "but a chef in the kitchen,",
-      text3: "a surgeon at the operating table.",
-      footer: "Since 2006, the address of quality and trust in fastening systems."
     },
     stats: [
       { value: "18+", label: "Years of Experience" },
@@ -111,13 +97,6 @@ export const translations = {
       cta1: "Solicitar Presupuesto",
       cta2: "Ver Productos"
     },
-    manifesto: {
-      badge: "MANIFIESTO",
-      text1: "No somos comerciantes de escritorio,",
-      text2: "sino chefs en la cocina,",
-      text3: "cirujanos en la mesa de operaciones.",
-      footer: "Desde 2006, la dirección de calidad y confianza en sistemas de fijación."
-    },
     stats: [
       { value: "18+", label: "Años de Experiencia" },
       { value: "1000+", label: "Máquinas Reparadas" },
@@ -160,13 +139,6 @@ export const translations = {
       desc: "18 عامًا من الخبرة في التصنيع والاستيراد والتصدير والتسويق. الإنتاج بمعايير جودة عالية وشراكة موثوقة.",
       cta1: "احصل على عرض سعر",
       cta2: "عرض منتجاتنا"
-    },
-    manifesto: {
-      badge: "البيان",
-      text1: "لسنا تجار ماكينات من خلف المكاتب،",
-      text2: "بل نحن طهاة في المطبخ،",
-      text3: "وجراحون على طاولة العمليات.",
-      footer: "منذ عام 2006، عنوان الجودة والثقة في أنظمة التثبيت."
     },
     stats: [
       { value: "18+", label: "سنوات من الخبرة" },
