@@ -3,8 +3,8 @@ import Link from "next/link";
 const stats = [
   { value: "2006", label: "Kuruluş Yılı" },
   { value: "18+", label: "Yıl Sektör Tecrübesi" },
-  { value: "1000+", label: "Satılan Makine" },
-  { value: "10000+", label: "Tamir Edilen Makine" },
+  { value: "1.000+", label: "Satılan Makine" },
+  { value: "10.000+", label: "Tamir Edilen Makine" },
 ];
 
 const values = [
