@@ -12,7 +12,7 @@ export default function UrunDetayPage() {
   const [activeImage, setActiveImage] = useState(0);
   const [showQuoteModal, setShowQuoteModal] = useState(false);
   const [quoteForm, setQuoteForm] = useState({ name: "", email: "", phone: "", message: "" });
-  const [quoteStatus, setQuoteStatus] = useState<"idle" | "sending" | "success">("idle");
+  const [quoteStatus, setQuoteStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -43,13 +43,15 @@ export default function UrunDetayPage() {
           type: "QUOTE_REQUEST"
         }),
       });
-      if (res.ok) {
+            if (res.ok) {
         setQuoteStatus("success");
         setTimeout(() => {
           setShowQuoteModal(false);
           setQuoteStatus("idle");
           setQuoteForm({ name: "", email: "", phone: "", message: "" });
         }, 2000);
+      } else {
+        setQuoteStatus("error");
       }
     } catch (error) {
       console.error("Teklif gönderilemedi", error);
@@ -176,6 +178,11 @@ export default function UrunDetayPage() {
               </button>
             </div>
             <p className="text-sm text-slate-600 mb-4"><strong>{product.name}</strong> için teklif talebiniz alınacaktır.</p>
+                        {quoteStatus === "error" && (
+              <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                Teklif gönderilemedi. Lütfen tekrar deneyin veya bizi arayın.
+              </div>
+            )}
             
             {quoteStatus === "success" ? (
               <div className="text-center py-8">
