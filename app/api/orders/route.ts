@@ -4,17 +4,31 @@ import { prisma } from '@/lib/prisma';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { type, productName, customerName, customerEmail, customerPhone, message } = body;
+    const {
+      type,
+      productName,
+      customerName, customerEmail, customerPhone,
+      name, email, phone,
+      message,
+    } = body;
+
+    const finalName = customerName || name || '';
+    const finalEmail = customerEmail || email || '';
+    const finalPhone = customerPhone || phone || '';
+
+    if (!finalName || !finalEmail || !finalPhone) {
+      return NextResponse.json({ error: 'Eksik bilgi: ad, e-posta ve telefon zorunlu' }, { status: 400 });
+    }
 
     const newOrder = await prisma.order.create({
       data: {
-        type: type || "QUOTE_REQUEST",
-        productName,
-        customerName,
-        customerEmail,
-        customerPhone,
-        message: message || "",
-        status: "PENDING",
+        type: type || 'QUOTE_REQUEST',
+        productName: productName || 'Genel',
+        customerName: finalName,
+        customerEmail: finalEmail,
+        customerPhone: finalPhone,
+        message: message || '',
+        status: 'PENDING',
       },
     });
 

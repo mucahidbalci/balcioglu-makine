@@ -13,8 +13,8 @@ export const translations = {
     },
     stats: [
       { value: "18+", label: "Yıl Tecrübe" },
-      { value: "1.000+", label: "Tamir Edilen Makine" },
-      { value: "10.000+", label: "Satılan Makine" },
+      { value: "10.000+", label: "Tamir Edilen Makine" },
+      { value: "1.000+", label: "Satılan Makine" },
       { value: "10+", label: "İhracat Ülkesi" }
     ],
     why: {
@@ -54,10 +54,10 @@ export const translations = {
       cta1: "Get a Quote",
       cta2: "View Our Products"
     },
-    stats: [
+        stats: [
       { value: "18+", label: "Years of Experience" },
-      { value: "10.00+", label: "Machines Repaired" },
-      { value: "10.000+", label: "Machines Sold" },
+      { value: "10,000+", label: "Machines Repaired" },
+      { value: "1,000+", label: "Machines Sold" },
       { value: "10+", label: "Export Countries" }
     ],
     why: {
@@ -97,10 +97,10 @@ export const translations = {
       cta1: "Solicitar Presupuesto",
       cta2: "Ver Productos"
     },
-    stats: [
+        stats: [
       { value: "18+", label: "Años de Experiencia" },
-      { value: "1000+", label: "Máquinas Reparadas" },
-      { value: "10.000+", label: "Máquinas Vendidas" },
+      { value: "10.000+", label: "Máquinas Reparadas" },
+      { value: "1.000+", label: "Máquinas Vendidas" },
       { value: "10+", label: "Países de Exportación" }
     ],
     why: {
@@ -140,10 +140,10 @@ export const translations = {
       cta1: "احصل على عرض سعر",
       cta2: "عرض منتجاتنا"
     },
-    stats: [
+        stats: [
       { value: "18+", label: "سنوات من الخبرة" },
-      { value: "1.000+", label: "ماكينة تم إصلاحها" },
-      { value: "10.000+", label: "ماكينة تم بيعها" },
+      { value: "10000+", label: "ماكينة تم إصلاحها" },
+      { value: "1000+", label: "ماكينة تم بيعها" },
       { value: "10+", label: "دولة تصدير" }
     ],
     why: {
