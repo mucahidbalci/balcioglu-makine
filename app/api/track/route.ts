@@ -3,11 +3,16 @@ import { prisma } from '@/lib/prisma';
 
 async function getExcludedIps(): Promise<string[]> {
   try {
-    const settings = await prisma.settings.findFirst();
-    return (settings?.excludedIps || "")
+    const [settings, blocked] = await Promise.all([
+      prisma.settings.findFirst(),
+      prisma.blockedIp.findMany({ select: { ip: true } }),
+    ]);
+    const fromSettings = (settings?.excludedIps || "")
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
+    const fromBlocked = blocked.map((b) => b.ip);
+    return Array.from(new Set([...fromSettings, ...fromBlocked]));
   } catch {
     return [];
   }
