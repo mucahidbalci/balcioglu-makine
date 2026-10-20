@@ -2,8 +2,9 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Lang, translations } from './i18n';
+import { pages } from './i18n-pages';
 
-type TranslationType = typeof translations.tr;
+type TranslationType = typeof translations.tr & typeof pages.tr;
 
 interface LanguageContextType {
   lang: Lang;
@@ -19,9 +20,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const saved = localStorage.getItem('lang') as Lang | null;
-    if (saved && translations[saved]) {
-      setLangState(saved);
-    }
+    if (saved && translations[saved]) setLangState(saved);
   }, []);
 
   const setLang = (newLang: Lang) => {
@@ -37,7 +36,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, [lang]);
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t: translations[lang], dir: lang === 'ar' ? 'rtl' : 'ltr' }}>
+    <LanguageContext.Provider value={{ lang, setLang, t: { ...translations[lang], ...pages[lang] }, dir: lang === 'ar' ? 'rtl' : 'ltr' }}>
       {children}
     </LanguageContext.Provider>
   );

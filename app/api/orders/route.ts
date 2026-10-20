@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, id: newOrder.id }, { status: 201 });
   } catch (error) {
-    console.error('Teklif/Sipariş hatası:', error);
+    console.error('Teklif hatası:', error);
     return NextResponse.json({ error: 'Kayıt oluşturulamadı' }, { status: 500 });
   }
 }

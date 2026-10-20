@@ -68,8 +68,6 @@ export default function AdminDashboard() {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const router = useRouter();
 
-  useEffect(() => { document.documentElement.classList.add("dark"); }, []);
-
   useEffect(() => {
     if (activeTab === "settings") {
       fetch("/api/admin/settings").then(r => r.json()).then(d => {

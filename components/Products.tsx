@@ -1,117 +1,57 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useLanguage } from "@/lib/LanguageContext";
 
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: string | null;
-  features: string[];
-  imageUrl: string | null;
-  images: string[];
-  isActive: boolean;
-}
-
-export default function Products() {
-  const [products, setProducts] = useState<Product[]>([]);
+export default function Products({ showHeader = true }: { showHeader?: boolean }) {
+  const { t, dir } = useLanguage();
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     fetch("/api/admin/products")
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data.filter((p: Product) => p.isActive));
-        setLoading(false);
-      })
+      .then((r) => r.json())
+      .then((d) => { setProducts(Array.isArray(d) ? d : []); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
-  // Artık detay sayfasına yönlendiriyor
-  const handleViewDetail = (productId: string) => {
-    router.push(`/urun/${productId}`);
-  };
-
-  if (loading) {
-    return (
-      <section className="py-16 px-4 bg-slate-50">
-        <div className="max-w-7xl mx-auto text-center">
-          <p className="text-slate-500">Ürünler yükleniyor...</p>
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section className="py-16 px-4 bg-slate-50">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl font-bold text-center text-slate-900 mb-4">Ürünlerimiz</h2>
-        <p className="text-center text-slate-600 mb-12 max-w-2xl mx-auto">
-          Yüksek kalite standartlarında ürettiğimiz kılçık makineleri ve sabitleme sistemleri
-        </p>
-        
-        {products.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-slate-500">Henüz ürün eklenmemiş.</p>
+    <section className="py-24 px-4 bg-white" dir={dir}>
+      <div className="max-w-6xl mx-auto">
+        {showHeader && (
+          <div className="text-center mb-14">
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">{t.products.title}</h2>
+            <p className="text-slate-600 text-xl max-w-2xl mx-auto">{t.products.subtitle}</p>
           </div>
+        )}
+        {loading ? (
+          <p className="text-center text-slate-500 py-16">{t.products.loading}</p>
+        ) : products.length === 0 ? (
+          <p className="text-center text-slate-500 py-16">{t.products.empty}</p>
         ) : (
-          <div className="grid md:grid-cols-3 gap-8">
-            {products.map((product) => (
-              <div
-                key={product.id}
-                onClick={() => handleViewDetail(product.id)}
-                className="bg-white p-8 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 border-t-4 border-orange-500 cursor-pointer hover:scale-105 group flex flex-col h-full"
-              >
-                {/* Ürün Görseli */}
-                {(product.imageUrl || product.images?.[0]) ? (
-                  <div className="mb-6 h-48 rounded-lg overflow-hidden bg-slate-100">
-                    <img 
-                      src={product.imageUrl || product.images?.[0]} 
-                      alt={product.name}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {products.map((p) => (
+              <div key={p.id} className="group bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                <Link href={`/urun/${p.id}`} className="block">
+                  <div className="aspect-[4/3] bg-white overflow-hidden">
+                    {p.imageUrl ? (
+                      <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-300">
+                        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="mb-6 h-48 rounded-lg bg-slate-100 flex items-center justify-center">
-                    <svg className="w-12 h-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">{p.name}</h3>
+                    <p className="text-sm text-slate-600 mb-4">{(p.description || "").substring(0, 90)}{(p.description || "").length > 90 ? "..." : ""}</p>
+                    <span className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 group-hover:gap-3 transition-all">
+                      {t.products.detail}
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                    </span>
                   </div>
-                )}
-
-                <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-orange-600 transition">
-                  {product.name}
-                </h3>
-                <p className="text-slate-600 mb-4 flex-grow">{product.description}</p>
-                
-                {product.price && (
-                  <p className="text-orange-600 font-bold text-lg mb-4">{product.price}</p>
-                )}
-
-                <ul className="space-y-2 mb-6">
-                  {product.features.slice(0, 3).map((feature, i) => (
-                    <li key={i} className="flex items-center text-sm text-slate-700">
-                      <span className="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
-                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* DETAYLI İNCELE BUTONU */}
-                <div className="mt-auto flex items-center justify-center gap-2 bg-orange-50 border border-orange-200 rounded-lg py-3 px-4 group-hover:bg-orange-100 transition">
-                  <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  <span className="text-orange-700 font-semibold text-sm">Detaylı İncele</span>
-                </div>
+                </Link>
               </div>
             ))}
           </div>
